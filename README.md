@@ -1,1 +1,1439 @@
-# digivault-site
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DigiVault.id Enhanced Features</title>
+    <!-- Tailwind CSS CDN for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    <!-- Google Fonts - Inter for clean typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Define custom CSS variables for consistent theming */
+        :root {
+            --blue-primary: #0B3D91;
+            --gray-bg: #F8F9FA;
+            --gray-text: #495057;
+            --gold-accent: #B8860B;
+            --green-accent: #28A745;
+            --red-alert: #dc3545;
+        }
+
+        /* Base body styling for font and background */
+        body {
+            background-color: var(--gray-bg);
+            color: var(--gray-text);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Styling for the mobile screen container */
+        .mobile-screen {
+            width: 375px; /* Fixed width for mobile mock-up */
+            height: 667px; /* Fixed height for mobile mock-up */
+            margin: 20px auto;
+            border: 10px solid #333;
+            border-radius: 30px;
+            overflow: hidden;
+            position: relative;
+            background-color: var(--gray-bg);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Primary blue button styling */
+        .blue-btn {
+            background-color: var(--blue-primary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .blue-btn:hover {
+            background-color: #072b6a; /* Darker shade on hover */
+        }
+
+        /* Bottom navigation bar styling */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            background-color: white;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 10px 0;
+            border-top: 1px solid #ddd;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* Individual navigation item styling */
+        .nav-item {
+            text-align: center;
+            font-size: 12px;
+            color: var(--gray-text);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .nav-item:hover {
+            color: var(--blue-primary);
+        }
+
+        .nav-item.active {
+            color: var(--blue-primary);
+            font-weight: bold;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        /* Card styling for policies, contacts, and notifications */
+        .policy-card, .contact-card, .notification-item, .vault-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .policy-card:hover, .contact-card:hover, .vault-card:hover {
+            transform: translateY(-3px); /* Slight lift on hover */
+        }
+
+        /* Status indicators */
+        .status-active { color: var(--green-accent); }
+        .status-warning { color: var(--gold-accent); }
+        .status-urgent { color: var(--red-alert); }
+
+        /* Toggle switch styling for access controls */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            border-radius: 34px;
+            transition: .4s;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            border-radius: 50%;
+            transition: .4s;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--blue-primary);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Content area with scrolling */
+        .screen-content {
+            height: calc(100% - 60px); /* Adjust for header/footer if present */
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        /* Headings color */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--blue-primary);
+        }
+
+        /* Hide all screens by default */
+        .screen {
+            display: none;
+        }
+
+        /* Show active screen */
+        .active {
+            display: block;
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1001; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            width: 90%; /* Responsive width */
+            max-width: 400px; /* Max width for larger screens */
+            position: relative;
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* General form input styling */
+        input[type="text"], input[type="email"], input[type="password"], select, textarea {
+            border: 1px solid #ccc;
+            padding: 8px;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box; /* Include padding in width */
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+        label {
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 500; /* font-medium */
+            color: var(--gray-text);
+        }
+        .info-box {
+            background-color: #e0f2f7; /* Light blue background */
+            border-left: 5px solid var(--blue-primary);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 0.875rem;
+            color: var(--blue-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl text-center font-bold mb-4" style="color: var(--blue-primary);">DigiVault.id Mobile App</h1>
+        <p class="text-center mb-8">A secure digital legacy vault for life insurance and annuity portfolios</p>
+
+        <!-- Login Screen -->
+        <div id="login-screen" class="mobile-screen screen active">
+            <div class="screen-content flex flex-col items-center justify-center h-full">
+                <div class="mb-10 text-center">
+                    <i class="fas fa-vault text-5xl mb-2" style="color: var(--blue-primary);"></i>
+                    <h2 class="text-2xl font-bold" style="color: var(--blue-primary);">DigiVault.id</h2>
+                    <p class="text-sm mt-2">Your Digital Legacy Vault</p>
+                </div>
+
+                <div class="w-full px-8 mb-8">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-1">Email Address</label>
+                        <input type="email" class="w-full p-3 border rounded-lg" placeholder="email@example.com">
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-1">Password</label>
+                        <input type="password" class="w-full p-3 border rounded-lg" placeholder="••••••••">
+                    </div>
+
+                    <button class="blue-btn w-full mb-4" onclick="showScreen('dashboard-screen')">Login</button>
+
+                    <div class="flex justify-between text-sm mt-4">
+                        <a href="#" class="text-blue-600">Forgot Password?</a>
+                        <a href="#" class="text-blue-600">Sign Up</a>
+                    </div>
+
+                    <div class="flex items-center justify-center mt-8">
+                        <div class="flex items-center justify-center w-10 h-10 rounded-full border border-gray-300 mx-2">
+                            <i class="fas fa-fingerprint"></i>
+                        </div>
+                        <div class="flex items-center justify-center w-10 h-10 rounded-full border border-gray-300 mx-2">
+                            <i class="fas fa-face-smile"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Screen -->
+        <div id="dashboard-screen" class="mobile-screen screen">
+            <div class="screen-content">
+                <h2 class="text-xl font-bold mb-4">Welcome Back, John</h2>
+
+                <!-- Legacy Snapshot Widget -->
+                <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                    <h3 class="text-md font-bold mb-2">Legacy Snapshot</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="p-2">
+                            <p class="text-xs">Total Estimated Benefit</p>
+                            <p class="text-lg font-bold">$750,000</p>
+                        </div>
+                        <div class="p-2">
+                            <p class="text-xs">Total Cash Value</p>
+                            <p class="text-lg font-bold">$125,000</p>
+                        </div>
+                        <div class="p-2">
+                            <p class="text-xs">Active Policies</p>
+                            <p class="text-lg font-bold">4</p>
+                        </div>
+                        <div class="p-2">
+                            <p class="text-xs">Last Updated</p>
+                            <p class="text-sm">Jun 15, 2023</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Required Section -->
+                <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                    <h3 class="text-md font-bold mb-2">Action Required</h3>
+                    <div class="border-l-4 border-yellow-500 pl-3 py-2 mb-2">
+                        <p class="text-sm font-medium">Premium Due Soon</p>
+                        <p class="text-xs">Whole Life - ABC Insurance</p>
+                        <p class="text-xs text-gray-500">Due: Jul 30, 2023</p>
+                    </div>
+                    <div class="border-l-4 border-red-500 pl-3 py-2">
+                        <p class="text-sm font-medium">Update Needed</p>
+                        <p class="text-xs">Beneficiary Info - Term Life</p>
+                        <p class="text-xs text-gray-500">Required by: Aug 15, 2023</p>
+                    </div>
+                </div>
+
+                <!-- Legacy Team Status (formerly Beneficiary Status) -->
+                <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                    <h3 class="text-md font-bold mb-2">Legacy Team Status</h3>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-sm">Designated Team Members: 3</p>
+                            <p class="text-xs text-yellow-600">1 contact needs verification</p>
+                        </div>
+                        <button class="px-3 py-1 bg-blue-100 text-blue-800 rounded-lg text-sm" onclick="showScreen('legacy-team-management-screen')">Manage Team</button>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="grid grid-cols-3 gap-2 mb-4">
+                    <div class="bg-blue-50 rounded-lg p-3 text-center">
+                        <i class="fas fa-plus-circle mb-1" style="color: var(--blue-primary);"></i>
+                        <p class="text-xs">Add Policy</p>
+                    </div>
+                    <div class="bg-blue-50 rounded-lg p-3 text-center" onclick="showScreen('policies-screen')">
+                        <i class="fas fa-list mb-1" style="color: var(--blue-primary);"></i>
+                        <p class="text-xs">View Policies</p>
+                    </div>
+                    <div class="bg-blue-50 rounded-lg p-3 text-center" onclick="showScreen('vault-management-screen')">
+                        <i class="fas fa-folder-open mb-1" style="color: var(--blue-primary);"></i>
+                        <p class="text-xs">My Vaults</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="bottom-nav">
+                <div class="nav-item active">
+                    <div class="nav-icon"><i class="fas fa-home" style="color: var(--blue-primary);"></i></div>
+                    <div>Home</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('policies-screen')">
+                    <div class="nav-icon"><i class="fas fa-file-contract"></i></div>
+                    <div>Policies</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('legacy-team-management-screen')">
+                    <div class="nav-icon"><i class="fas fa-users"></i></div>
+                    <div>Team</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('notification-screen')">
+                    <div class="nav-icon"><i class="fas fa-bell"></i></div>
+                    <div>Alerts</div>
+                </div>
+                <div class="nav-item">
+                    <div class="nav-icon"><i class="fas fa-user"></i></div>
+                    <div>Profile</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Policies Screen -->
+        <div id="policies-screen" class="mobile-screen screen">
+            <div class="screen-content">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">My Life Policies</h2>
+                    <div class="rounded-full bg-white p-2 shadow-sm">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+
+                <!-- Policy List -->
+                <div class="policy-card" onclick="showScreen('policy-detail-screen')">
+                    <div class="flex justify-between">
+                        <div>
+                            <div class="flex items-center mb-1">
+                                <i class="fas fa-shield-alt mr-2" style="color: var(--blue-primary);"></i>
+                                <span class="font-medium">Whole Life</span>
+                            </div>
+                            <p class="text-xs">ABC Insurance</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold">$250,000</p>
+                            <div class="flex items-center justify-end">
+                                <span class="h-2 w-2 rounded-full bg-green-500 mr-1"></span>
+                                <span class="text-xs status-active">Active</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="policy-card">
+                    <div class="flex justify-between">
+                        <div>
+                            <div class="flex items-center mb-1">
+                                <i class="fas fa-hourglass-half mr-2" style="color: var(--blue-primary);"></i>
+                                <span class="font-medium">Term Life</span>
+                            </div>
+                            <p class="text-xs">XYZ Insurance</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold">$500,000</p>
+                            <div class="flex items-center justify-end">
+                                <span class="h-2 w-2 rounded-full bg-yellow-500 mr-1"></span>
+                                <span class="text-xs status-warning">Update Needed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="policy-card">
+                    <div class="flex justify-between">
+                        <div>
+                            <div class="flex items-center mb-1">
+                                <i class="fas fa-chart-line mr-2" style="color: var(--blue-primary);"></i>
+                                <span class="font-medium">VUL</span>
+                            </div>
+                            <p class="text-xs">DEF Insurance</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold">$300,000</p>
+                            <div class="flex items-center justify-end">
+                                <span class="h-2 w-2 rounded-full bg-green-500 mr-1"></span>
+                                <span class="text-xs status-active">Active</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="policy-card">
+                    <div class="flex justify-between">
+                        <div>
+                            <div class="flex items-center mb-1">
+                                <i class="fas fa-money-bill-wave mr-2" style="color: var(--blue-primary);"></i>
+                                <span class="font-medium">Annuity</span>
+                            </div>
+                            <p class="text-xs">GHI Financial</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold">$100,000</p>
+                            <div class="flex items-center justify-end">
+                                <span class="h-2 w-2 rounded-full bg-green-500 mr-1"></span>
+                                <span class="text-xs status-active">Active</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="blue-btn w-full mt-4">
+                    <i class="fas fa-plus mr-2"></i> Add New Policy
+                </button>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="showScreen('dashboard-screen')">
+                    <div class="nav-icon"><i class="fas fa-home"></i></div>
+                    <div>Home</div>
+                </div>
+                <div class="nav-item active">
+                    <div class="nav-icon"><i class="fas fa-file-contract" style="color: var(--blue-primary);"></i></div>
+                    <div>Policies</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('legacy-team-management-screen')">
+                    <div class="nav-icon"><i class="fas fa-users"></i></div>
+                    <div>Team</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('notification-screen')">
+                    <div class="nav-icon"><i class="fas fa-bell"></i></div>
+                    <div>Alerts</div>
+                </div>
+                <div class="nav-item">
+                    <div class="nav-icon"><i class="fas fa-user"></i></div>
+                    <div>Profile</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Policy Detail Screen -->
+        <div id="policy-detail-screen" class="mobile-screen screen">
+            <div class="screen-content">
+                <div class="mb-4">
+                    <button class="text-sm" onclick="showScreen('policies-screen')">
+                        <i class="fas fa-arrow-left mr-1"></i> Back to Policies
+                    </button>
+                </div>
+
+                <h2 class="text-xl font-bold mb-1">Whole Life - WL123456</h2>
+                <div class="flex items-center mb-4">
+                    <span class="h-2 w-2 rounded-full bg-green-500 mr-1"></span>
+                    <span class="text-xs status-active">Active</span>
+                </div>
+
+                <!-- Key Information -->
+                <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                    <h3 class="text-md font-bold mb-2">Key Information</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="p-2">
+                            <p class="text-xs text-gray-500">Insurer</p>
+                            <p class="text-sm">ABC Insurance</p>
+                        </div>
+                        <div class="p-2">
+                            <p class="text-xs text-gray-500">Jurisdiction</p>
+                            <p class="text-sm">Indonesia</p>
+                        </div>
+                        <div class="p-2">
+                            <p class="text-xs text-gray-500">Policy Number</p>
+                            <p class="text-sm">WL123456</p>
+                        </div>
+                        <div class="p-2">
+                            <p class="text-xs text-gray-500">Premium</p>
+                            <p class="text-sm">$2,500 / Annual</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financials -->
+                <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                    <h3 class="text-md font-bold mb-2">Financials</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="p-2">
+                            <p class="text-xs text-gray-500">Coverage Amount</p>
+                            <p class="text-sm font-bold">$250,000</p>
+                        </div>
+                        <div class="p-2">
+                            <p class="text-xs text-gray-500">Current Cash Value</p>
+                            <p class="text-sm font-bold">$75,500</p>
+                        </div>
+                        <div class="p-2 col-span-2">
+                            <p class="text-xs text-gray-500">Last Updated</p>
+                            <p class="text-sm">June 1, 2023</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Beneficiaries -->
+                <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                    <h3 class="text-md font-bold mb-2">Beneficiaries</h3>
+                    <div class="mb-2 pb-2 border-b">
+                        <div class="flex justify-between">
+                            <div>
+                                <p class="text-sm font-medium">Sarah Smith</p>
+                                <p class="text-xs text-gray-500">Spouse - Primary (70%)</p>
+                            </div>
+                            <button class="text-xs px-2 py-1 bg-gray-100 rounded">Edit</button>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between">
+                            <div>
+                                <p class="text-sm font-medium">Michael Smith</p>
+                                <p class="text-xs text-gray-500">Child - Secondary (30%)</p>
+                            </div>
+                            <button class="text-xs px-2 py-1 bg-gray-100 rounded">Edit</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advisor of Record (AOR) & Succession Plan - NEW FEATURE -->
+                <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                    <h3 class="text-md font-bold mb-2">Advisor of Record (AOR)</h3>
+                    <p class="text-sm text-gray-500 mb-3">Designate your primary agent for this policy.</p>
+                    <div class="mb-2">
+                        <label class="block text-xs font-medium mb-1">Current AOR:</label>
+                        <select id="aor-select" class="w-full p-2 border rounded">
+                            <option value="">None Selected</option>
+                            <option value="agent1">Budi Santoso (Prudential Specialist)</option>
+                            <option value="agent2" selected>Citra Dewi (AXA Specialist)</option>
+                            <option value="notary1">Mr. Joko (Legal Counsel)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="block text-xs font-medium mb-1">Successor Advisor:</label>
+                        <select id="successor-select" class="w-full p-2 border rounded">
+                            <option value="">None Selected</option>
+                            <option value="agent1" selected>Budi Santoso (Prudential Specialist)</option>
+                            <option value="agent2">Citra Dewi (AXA Specialist)</option>
+                            <option value="family1">Sarah Smith (Spouse)</option>
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">Automatically assigned if current AOR is inactive.</p>
+                    </div>
+                    <button class="blue-btn w-full mt-2 text-sm py-2">Update AOR Settings</button>
+                </div>
+
+                <!-- Guided Instructions & Ethical Will - NEW FEATURE -->
+                <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                    <h3 class="text-md font-bold mb-2">Guided Instructions / Ethical Will</h3>
+                    <p class="text-sm text-gray-500 mb-3">Leave personal messages or specific instructions related to this policy's purpose.</p>
+                    <div id="ethical-will-messages">
+                        <div class="border-b pb-2 mb-2 last:border-b-0 last:pb-0">
+                            <p class="text-sm font-medium">"I intend for this policy's benefits to be used for my son's university education."</p>
+                            <p class="text-xs text-gray-500 mt-1">Added: 2023-06-01</p>
+                            <button class="text-xs text-blue-600 mt-1">Edit</button>
+                        </div>
+                    </div>
+                    <button class="blue-btn w-full mt-4 text-sm py-2" onclick="openModal('ethicalWillModal')">
+                        <i class="fas fa-plus mr-2"></i> Add/Edit Message
+                    </button>
+                </div>
+
+
+                <!-- Status & Dates -->
+                <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                    <h3 class="text-md font-bold mb-2">Status & Dates</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="p-2">
+                            <p class="text-xs text-gray-500">Current Status</p>
+                            <p class="text-sm status-active">Active</p>
+                        </div>
+                        <div class="p-2">
+                            <p class="text-xs text-gray-500">Effective Date</p>
+                            <p class="text-sm">Jan 15, 2010</p>
+                        </div>
+                        <div class="p-2">
+                            <p class="text-xs text-gray-500">Maturity Date</p>
+                            <p class="text-sm">Jan 15, 2070</p>
+                        </div>
+                        <div class="p-2">
+                            <p class="text-xs text-gray-500">Next Premium Due</p>
+                            <p class="text-sm">Jan 15, 2024</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Documents -->
+                <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                    <h3 class="text-md font-bold mb-2">Documents</h3>
+                    <div class="flex items-center p-2 mb-2 bg-gray-50 rounded">
+                        <i class="fas fa-file-pdf mr-2" style="color: #dc3545;"></i>
+                        <div>
+                            <p class="text-sm">Policy Contract</p>
+                            <p class="text-xs text-gray-500">Uploaded Jan 20, 2010</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-2 bg-gray-50 rounded">
+                        <i class="fas fa-file-pdf mr-2" style="color: #dc3545;"></i>
+                        <div>
+                            <p class="text-sm">Latest Statement</p>
+                            <p class="text-xs text-gray-500">Uploaded Jun 1, 2023</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Client Request & Agent Action - NEW FEATURE -->
+                <button class="blue-btn w-full mb-4" onclick="openModal('requestAssistanceModal')">
+                    <i class="fas fa-headset mr-2"></i> Request Agent Assistance (Temporary Access)
+                </button>
+
+                <button class="blue-btn w-full mb-4">
+                    <i class="fas fa-edit mr-2"></i> Edit Policy Details
+                </button>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="showScreen('dashboard-screen')">
+                    <div class="nav-icon"><i class="fas fa-home"></i></div>
+                    <div>Home</div>
+                </div>
+                <div class="nav-item active">
+                    <div class="nav-icon"><i class="fas fa-file-contract" style="color: var(--blue-primary);"></i></div>
+                    <div>Policies</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('legacy-team-management-screen')">
+                    <div class="nav-icon"><i class="fas fa-users"></i></div>
+                    <div>Team</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('notification-screen')">
+                    <div class="nav-icon"><i class="fas fa-bell"></i></div>
+                    <div>Alerts</div>
+                </div>
+                <div class="nav-item">
+                    <div class="nav-icon"><i class="fas fa-user"></i></div>
+                    <div>Profile</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legacy Team Management Screen (formerly Legacy Share Screen) -->
+        <div id="legacy-team-management-screen" class="mobile-screen screen">
+            <div class="screen-content">
+                <h2 class="text-xl font-bold mb-1">Manage Legacy Team</h2>
+                <p class="text-sm mb-4">Invite and manage trusted professionals and family members for your digital legacy.</p>
+
+                <!-- Designated Contacts (now Team Members) -->
+                <div class="contact-card">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <p class="font-medium">Sarah Smith</p>
+                            <p class="text-xs text-gray-500">Spouse - Primary Beneficiary, Executor</p>
+                        </div>
+                        <div class="flex">
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full flex items-center">
+                                <i class="fas fa-check-circle mr-1"></i> Verified
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between mt-2">
+                        <button class="text-xs text-blue-600" onclick="showScreen('configure-team-member-access-screen')">
+                            Edit Permissions
+                        </button>
+                        <button class="text-xs text-gray-600">
+                            <i class="fas fa-trash"></i> Remove
+                        </button>
+                    </div>
+                </div>
+
+                <div class="contact-card">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <p class="font-medium">Michael Johnson</p>
+                            <p class="text-xs text-gray-500">Financial Advisor</p>
+                        </div>
+                        <div class="flex">
+                            <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full flex items-center">
+                                <i class="fas fa-exclamation-circle mr-1"></i> Pending Invite
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between mt-2">
+                        <button class="text-xs text-blue-600">
+                            Edit Permissions
+                        </button>
+                        <button class="text-xs text-gray-600">
+                            <i class="fas fa-trash"></i> Remove
+                        </button>
+                    </div>
+                </div>
+
+                <div class="contact-card">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <p class="font-medium">Thomas Wilson</p>
+                            <p class="text-xs text-gray-500">Legal Counsel (Notary)</p>
+                        </div>
+                        <div class="flex">
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full flex items-center">
+                                <i class="fas fa-check-circle mr-1"></i> Verified
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between mt-2">
+                        <button class="text-xs text-blue-600">
+                            Edit Permissions
+                        </button>
+                        <button class="text-xs text-gray-600">
+                            <i class="fas fa-trash"></i> Remove
+                        </button>
+                    </div>
+                </div>
+
+                <div class="contact-card">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <p class="font-medium">Budi Santoso</p>
+                            <p class="text-xs text-gray-500">Life Insurance Specialist (Prudential)</p>
+                        </div>
+                        <div class="flex">
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full flex items-center">
+                                <i class="fas fa-check-circle mr-1"></i> Verified
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between mt-2">
+                        <button class="text-xs text-blue-600">
+                            Edit Permissions
+                        </button>
+                        <button class="text-xs text-gray-600">
+                            <i class="fas fa-trash"></i> Remove
+                        </button>
+                    </div>
+                </div>
+
+                <button class="blue-btn w-full mt-4 mb-3" onclick="showScreen('add-team-member-screen')">
+                    <i class="fas fa-user-plus mr-2"></i> Invite New Team Member
+                </button>
+
+                <button class="w-full py-3 border border-blue-700 text-blue-700 rounded-lg font-medium">
+                    Configure General Access Rules
+                </button>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="showScreen('dashboard-screen')">
+                    <div class="nav-icon"><i class="fas fa-home"></i></div>
+                    <div>Home</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('policies-screen')">
+                    <div class="nav-icon"><i class="fas fa-file-contract"></i></div>
+                    <div>Policies</div>
+                </div>
+                <div class="nav-item active">
+                    <div class="nav-icon"><i class="fas fa-users" style="color: var(--blue-primary);"></i></div>
+                    <div>Team</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('notification-screen')">
+                    <div class="nav-icon"><i class="fas fa-bell"></i></div>
+                    <div>Alerts</div>
+                </div>
+                <div class="nav-item">
+                    <div class="nav-icon"><i class="fas fa-user"></i></div>
+                    <div>Profile</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add New Team Member Screen - NEW FEATURE -->
+        <div id="add-team-member-screen" class="mobile-screen screen">
+            <div class="screen-content">
+                <div class="mb-4">
+                    <button class="text-sm" onclick="showScreen('legacy-team-management-screen')">
+                        <i class="fas fa-arrow-left mr-1"></i> Back to Team Management
+                    </button>
+                </div>
+                <h2 class="text-xl font-bold mb-4">Invite New Team Member</h2>
+
+                <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                    <div class="mb-3">
+                        <label class="block text-xs mb-1">Full Name</label>
+                        <input type="text" placeholder="e.g., Jane Doe">
+                    </div>
+                    <div class="mb-3">
+                        <label class="block text-xs mb-1">Email Address</label>
+                        <input type="email" placeholder="e.g., jane.doe@example.com">
+                    </div>
+                    <div class="mb-3">
+                        <label class="block text-xs mb-1">Role</label>
+                        <select class="w-full p-2 border rounded">
+                            <option value="">Select Role</option>
+                            <option>Primary Beneficiary</option>
+                            <option>Secondary Beneficiary</option>
+                            <option>Executor</option>
+                            <option>Life Insurance Specialist (Prudential)</option>
+                            <option>Life Insurance Specialist (AXA)</option>
+                            <option>Legal Counsel (Notary)</option>
+                            <option>Financial Advisor</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="block text-xs mb-1">Relationship (Optional)</label>
+                        <input type="text" placeholder="e.g., Aunt, Business Partner">
+                    </div>
+                    <button class="blue-btn w-full mt-4" onclick="showScreen('legacy-team-management-screen')">
+                        <i class="fas fa-paper-plane mr-2"></i> Send Invitation
+                    </button>
+                </div>
+            </div>
+             <!-- Bottom Navigation -->
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="showScreen('dashboard-screen')">
+                    <div class="nav-icon"><i class="fas fa-home"></i></div>
+                    <div>Home</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('policies-screen')">
+                    <div class="nav-icon"><i class="fas fa-file-contract"></i></div>
+                    <div>Policies</div>
+                </div>
+                <div class="nav-item active">
+                    <div class="nav-icon"><i class="fas fa-users" style="color: var(--blue-primary);"></i></div>
+                    <div>Team</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('notification-screen')">
+                    <div class="nav-icon"><i class="fas fa-bell"></i></div>
+                    <div>Alerts</div>
+                </div>
+                <div class="nav-item">
+                    <div class="nav-icon"><i class="fas fa-user"></i></div>
+                    <div>Profile</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configure Team Member Access Screen (formerly Access Rules Screen) -->
+        <div id="configure-team-member-access-screen" class="mobile-screen screen">
+            <div class="screen-content">
+                <div class="mb-4">
+                    <button class="text-sm" onclick="showScreen('legacy-team-management-screen')">
+                        <i class="fas fa-arrow-left mr-1"></i> Back to Legacy Team
+                    </button>
+                </div>
+
+                <h2 class="text-xl font-bold mb-1">Configure Access</h2>
+                <p class="text-sm mb-4">Sarah Smith - Spouse, Primary Beneficiary</p>
+
+                <!-- Contact Details -->
+                <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                    <h3 class="text-md font-bold mb-3">Team Member Details</h3>
+                    <div class="mb-3">
+                        <label class="block text-xs mb-1">Full Name</label>
+                        <input type="text" class="w-full p-2 border rounded" value="Sarah Smith">
+                    </div>
+                    <div class="mb-3">
+                        <label class="block text-xs mb-1">Role</label>
+                        <select class="w-full p-2 border rounded">
+                            <option>Primary Beneficiary</option>
+                            <option>Executor</option>
+                            <option>Life Insurance Specialist (Prudential)</option>
+                            <option>Legal Counsel</option>
+                            <option>Financial Advisor</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="block text-xs mb-1">Relationship</label>
+                        <input type="text" class="w-full p-2 border rounded" value="Spouse">
+                    </div>
+                    <div class="mb-3">
+                        <label class="block text-xs mb-1">Email*</label>
+                        <div class="flex">
+                            <input type="email" class="w-full p-2 border rounded-l" value="sarah.smith@example.com">
+                            <div class="bg-green-100 text-green-800 px-2 flex items-center rounded-r border border-l-0">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="block text-xs mb-1">Phone*</label>
+                        <div class="flex">
+                            <input type="text" class="w-full p-2 border rounded-l" value="+62 812-3456-7890">
+                            <div class="bg-green-100 text-green-800 px-2 flex items-center rounded-r border border-l-0">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="text-sm text-blue-600">
+                        <i class="fas fa-sticky-note mr-1"></i> View/Add Private Note for this Team Member
+                    </button>
+                </div>
+
+                <!-- Access Conditions -->
+                <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                    <h3 class="text-md font-bold mb-3">Access Activation Conditions</h3>
+                    <div class="mb-3 pb-3 border-b">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm font-medium">1. Upon Verified Life Event</p>
+                                <p class="text-xs text-gray-500">Access granted after verification (e.g., death, incapacity).</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 pb-3 border-b">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm font-medium">2. Immediate Limited Access</p>
+                                <p class="text-xs text-gray-500">Basic policy overviews shared now. Full details require consent.</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm font-medium">3. Time-Based Access</p>
+                                <p class="text-xs text-gray-500">Access granted automatically after a specified date.</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <input type="date" class="w-full p-2 border rounded mt-2">
+                        <p class="text-xs text-gray-500 mt-1">If enabled, specify the date for access activation.</p>
+                    </div>
+                </div>
+
+                <!-- Sub-Vault Access Control - NEW FEATURE -->
+                <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                    <h3 class="text-md font-bold mb-3">Sub-Vault Access Permissions</h3>
+                    <p class="text-sm text-gray-500 mb-3">Select which specific vaults this team member can access.</p>
+                    <div class="space-y-2">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="vault-master-sarah" class="mr-3" checked>
+                            <label for="vault-master-sarah" class="text-sm font-medium">Master Vault (All Policies)</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="vault-prudential-sarah" class="mr-3">
+                            <label for="vault-prudential-sarah" class="text-sm">Prudential Policies Vault</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="vault-axa-sarah" class="mr-3">
+                            <label for="vault-axa-sarah" class="text-sm">AXA Policies Vault</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="vault-legal-sarah" class="mr-3" checked>
+                            <label for="vault-legal-sarah" class="text-sm">Legal Documents Vault</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="vault-international-sarah" class="mr-3">
+                            <label for="vault-international-sarah" class="text-sm">International Policies Vault</label>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Information Sharing Controls (now also applies to sub-vault content) -->
+                <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                    <h3 class="text-md font-bold mb-3">Information Sharing Controls</h3>
+                    <p class="text-sm text-gray-500 mb-3">Select what information within the *authorized vaults* this team member can view.</p>
+
+                    <div class="flex items-center mb-3">
+                        <input type="checkbox" id="policy-list" class="mr-3" checked>
+                        <label for="policy-list" class="text-sm">Complete Policy List</label>
+                    </div>
+
+                    <div class="flex items-center mb-3">
+                        <input type="checkbox" id="policy-details" class="mr-3" checked>
+                        <label for="policy-details" class="text-sm">Policy Details & Values</label>
+                    </div>
+
+                    <div class="flex items-center mb-3">
+                        <input type="checkbox" id="documents" class="mr-3">
+                        <label for="documents" class="text-sm">Policy Documents</label>
+                    </div>
+
+                    <div class="flex items-center mb-3">
+                        <input type="checkbox" id="premium-info" class="mr-3">
+                        <label for="premium-info" class="text-sm">Premium Payment Information</label>
+                    </div>
+
+                    <div class="flex items-center mb-3">
+                        <input type="checkbox" id="support-guide" class="mr-3" checked>
+                        <label for="support-guide" class="text-sm">DigiVault Beneficiary Support Guide</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="contact-info" class="mr-3" checked>
+                        <label for="contact-info" class="text-sm">Insurance Provider Contact Info</label>
+                    </div>
+                </div>
+
+                <!-- Enhanced Security -->
+                <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-md font-bold mb-1">Enhanced Security with 2FA</h3>
+                            <p class="text-xs text-gray-500">Require verification code for this team member's access.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <button class="blue-btn w-full mb-4" onclick="showScreen('legacy-team-management-screen')">
+                    Save Settings for Sarah Smith
+                </button>
+            </div>
+            <!-- Bottom Navigation -->
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="showScreen('dashboard-screen')">
+                    <div class="nav-icon"><i class="fas fa-home"></i></div>
+                    <div>Home</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('policies-screen')">
+                    <div class="nav-icon"><i class="fas fa-file-contract"></i></div>
+                    <div>Policies</div>
+                </div>
+                <div class="nav-item active">
+                    <div class="nav-icon"><i class="fas fa-users" style="color: var(--blue-primary);"></i></div>
+                    <div>Team</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('notification-screen')">
+                    <div class="nav-icon"><i class="fas fa-bell"></i></div>
+                    <div>Alerts</div>
+                </div>
+                <div class="nav-item">
+                    <div class="nav-icon"><i class="fas fa-user"></i></div>
+                    <div>Profile</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vault Management Screen - NEW FEATURE -->
+        <div id="vault-management-screen" class="mobile-screen screen">
+            <div class="screen-content">
+                <div class="mb-4">
+                    <button class="text-sm" onclick="showScreen('dashboard-screen')">
+                        <i class="fas fa-arrow-left mr-1"></i> Back to Dashboard
+                    </button>
+                </div>
+                <h2 class="text-xl font-bold mb-4">My Digital Vaults</h2>
+                <p class="text-sm text-gray-500 mb-4">Organize your policies and documents into secure, compartmentalized vaults.</p>
+
+                <!-- Master Vault -->
+                <div class="vault-card">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-medium text-lg">Master Vault</h3>
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">All Policies & Docs</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">Contains all your uploaded life insurance policies, annuities, and legal documents.</p>
+                    <div class="text-xs text-gray-500">
+                        <p>Items: 12</p>
+                        <p>Last Updated: June 18, 2024</p>
+                    </div>
+                    <button class="blue-btn w-full mt-4 text-sm py-2">View All Contents</button>
+                </div>
+
+                <!-- Custom Sub-Vaults -->
+                <div class="vault-card">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-medium text-lg">Prudential Policies Vault</h3>
+                        <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Custom</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">Dedicated vault for all your Prudential life insurance policies and related documents.</p>
+                    <div class="text-xs text-gray-500">
+                        <p>Items: 3</p>
+                        <p>Shared with: Budi Santoso (Prudential Specialist)</p>
+                    </div>
+                    <div class="flex space-x-2 mt-4">
+                        <button class="blue-btn flex-1 text-sm py-2">View Vault</button>
+                        <button class="px-3 py-2 text-sm border rounded-lg text-gray-600"><i class="fas fa-edit"></i></button>
+                        <button class="px-3 py-2 text-sm border rounded-lg text-gray-600"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+
+                <div class="vault-card">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-medium text-lg">Legal Documents Vault</h3>
+                        <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Custom</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">Contains your will, trust documents, Akta Waris, and other important legal papers.</p>
+                    <div class="text-xs text-gray-500">
+                        <p>Items: 5</p>
+                        <p>Shared with: Thomas Wilson (Legal Counsel), Sarah Smith (Executor)</p>
+                    </div>
+                    <div class="flex space-x-2 mt-4">
+                        <button class="blue-btn flex-1 text-sm py-2">View Vault</button>
+                        <button class="px-3 py-2 text-sm border rounded-lg text-gray-600"><i class="fas fa-edit"></i></button>
+                        <button class="px-3 py-2 text-sm border rounded-lg text-gray-600"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+
+                <button class="blue-btn w-full mt-4">
+                    <i class="fas fa-plus mr-2"></i> Create New Sub-Vault
+                </button>
+            </div>
+             <!-- Bottom Navigation -->
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="showScreen('dashboard-screen')">
+                    <div class="nav-icon"><i class="fas fa-home"></i></div>
+                    <div>Home</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('policies-screen')">
+                    <div class="nav-icon"><i class="fas fa-file-contract"></i></div>
+                    <div>Policies</div>
+                </div>
+                <div class="nav-item active">
+                    <div class="nav-icon"><i class="fas fa-users"></i></div>
+                    <div>Team</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('notification-screen')">
+                    <div class="nav-icon"><i class="fas fa-bell"></i></div>
+                    <div>Alerts</div>
+                </div>
+                <div class="nav-item">
+                    <div class="nav-icon"><i class="fas fa-user"></i></div>
+                    <div>Profile</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Screen -->
+        <div id="notification-screen" class="mobile-screen screen">
+            <div class="screen-content">
+                <h2 class="text-xl font-bold mb-4">Notifications</h2>
+
+                <div class="notification-item bg-blue-50">
+                    <div class="flex items-start">
+                        <div class="bg-blue-100 p-2 rounded-full mr-3">
+                            <i class="fas fa-bell" style="color: var(--blue-primary);"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium">Premium Due Reminder</p>
+                            <p class="text-xs">Your Whole Life policy premium is due in 15 days</p>
+                            <p class="text-xs text-gray-500 mt-1">Today, 9:15 AM</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="flex items-start">
+                        <div class="bg-yellow-100 p-2 rounded-full mr-3">
+                            <i class="fas fa-exclamation-triangle" style="color: var(--gold-accent);"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium">Update Required</p>
+                            <p class="text-xs">Please update beneficiary information for your Term Life policy</p>
+                            <p class="text-xs text-gray-500 mt-1">Yesterday, 2:30 PM</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="flex items-start">
+                        <div class="bg-green-100 p-2 rounded-full mr-3">
+                            <i class="fas fa-check-circle" style="color: var(--green-accent);"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium">Verification Complete</p>
+                            <p class="text-xs">Sarah Smith's contact information has been verified</p>
+                            <p class="text-xs text-gray-500 mt-1">Jul 12, 2023, 10:45 AM</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="flex items-start">
+                        <div class="bg-blue-100 p-2 rounded-full mr-3">
+                            <i class="fas fa-info-circle" style="color: var(--blue-primary);"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium">Policy Anniversary</p>
+                            <p class="text-xs">Your VUL policy has completed 5 years today</p>
+                            <p class="text-xs text-gray-500 mt-1">Jul 10, 2023, 8:00 AM</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="flex items-start">
+                        <div class="bg-green-100 p-2 rounded-full mr-3">
+                            <i class="fas fa-check-circle" style="color: var(--green-accent);"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium">Premium Payment Confirmed</p>
+                            <p class="text-xs">Your annual premium payment for Whole Life policy was received</p>
+                            <p class="text-xs text-gray-500 mt-1">Jun 25, 2023, 3:15 PM</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="flex items-start">
+                        <div class="bg-blue-100 p-2 rounded-full mr-3">
+                            <i class="fas fa-sync" style="color: var(--blue-primary);"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium">Cash Value Updated</p>
+                            <p class="text-xs">Your policy's cash value has been updated based on latest statement</p>
+                            <p class="text-xs text-gray-500 mt-1">Jun 15, 2023, 11:30 AM</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="showScreen('dashboard-screen')">
+                    <div class="nav-icon"><i class="fas fa-home"></i></div>
+                    <div>Home</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('policies-screen')">
+                    <div class="nav-icon"><i class="fas fa-file-contract"></i></div>
+                    <div>Policies</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('legacy-team-management-screen')">
+                    <div class="nav-icon"><i class="fas fa-users"></i></div>
+                    <div>Team</div>
+                </div>
+                <div class="nav-item active">
+                    <div class="nav-icon"><i class="fas fa-bell" style="color: var(--blue-primary);"></i></div>
+                    <div>Alerts</div>
+                </div>
+                <div class="nav-item">
+                    <div class="nav-icon"><i class="fas fa-user"></i></div>
+                    <div>Profile</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request Assistance Modal - NEW FEATURE -->
+        <div id="requestAssistanceModal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" onclick="closeModal('requestAssistanceModal')">&times;</span>
+                <h3 class="text-xl font-bold mb-4" style="color: var(--blue-primary);">Request Agent Assistance</h3>
+                <p class="text-sm text-gray-500 mb-4">Grant temporary, read-only access to a specific policy for a designated agent to assist you.</p>
+
+                <div class="mb-3">
+                    <label class="block text-sm mb-1">Select Agent:</label>
+                    <select id="agent-select" class="w-full p-2 border rounded">
+                        <option value="">Choose an agent from your Legacy Team</option>
+                        <option value="agent1">Budi Santoso (Prudential Specialist)</option>
+                        <option value="agent2">Citra Dewi (AXA Specialist)</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="block text-sm mb-1">Access Duration:</label>
+                    <select id="duration-select" class="w-full p-2 border rounded">
+                        <option value="24h">24 Hours</option>
+                        <option value="7d">7 Days</option>
+                        <option value="custom">Custom Date</option>
+                    </select>
+                </div>
+                <div id="custom-date-field" class="mb-3 hidden">
+                    <label class="block text-sm mb-1">End Date for Access:</label>
+                    <input type="date" class="w-full p-2 border rounded">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm mb-1">Your Message (Optional):</label>
+                    <textarea class="w-full p-2 border rounded" rows="3" placeholder="e.g., 'Please help review my beneficiary details.'"></textarea>
+                </div>
+                <p class="text-xs text-gray-500 mb-4">Note: Access will be read-only and automatically revoke after the selected duration.</p>
+                <button class="blue-btn w-full" onclick="alertMessage('Assistance request sent successfully!'); closeModal('requestAssistanceModal');">Send Request</button>
+            </div>
+        </div>
+
+        <!-- Ethical Will Modal - NEW FEATURE -->
+        <div id="ethicalWillModal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" onclick="closeModal('ethicalWillModal')">&times;</span>
+                <h3 class="text-xl font-bold mb-4" style="color: var(--blue-primary);">Add/Edit Guided Instructions</h3>
+                <p class="text-sm text-gray-500 mb-4">Leave a personal message or specific instructions for this policy. This will be shared with authorized team members upon access conditions being met.</p>
+
+                <div class="mb-4">
+                    <label class="block text-sm mb-1">Your Message:</label>
+                    <textarea class="w-full p-2 border rounded" rows="5" placeholder="e.g., 'This policy is intended to fund my children's university education.'"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm mb-1">Attach to:</label>
+                    <select class="w-full p-2 border rounded">
+                        <option value="policy">Current Policy (WL123456)</option>
+                        <option value="sarah">Sarah Smith (Beneficiary)</option>
+                        <option value="michael">Michael Smith (Beneficiary)</option>
+                    </select>
+                </div>
+                <button class="blue-btn w-full" onclick="alertMessage('Ethical Will message saved!'); closeModal('ethicalWillModal');">Save Message</button>
+            </div>
+        </div>
+
+        <!-- Custom Alert/Message Box -->
+        <div id="customAlertModal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" onclick="closeModal('customAlertModal')">&times;</span>
+                <p id="customAlertMessage" class="text-md text-center font-semibold text-gray-800 mb-4"></p>
+                <button class="blue-btn w-full" onclick="closeModal('customAlertModal')">OK</button>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script>
+        // Function to show a specific screen and hide others
+        function showScreen(screenId) {
+            document.querySelectorAll('.mobile-screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+
+            // Update active state in bottom navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            const activeNavItem = document.querySelector(`.nav-item[onclick*="${screenId}"]`);
+            if (activeNavItem) {
+                activeNavItem.classList.add('active');
+            }
+        }
+
+        // Function to open a modal
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex'; // Use flex to center content
+        }
+
+        // Function to close a modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Custom alert function (instead of window.alert)
+        function alertMessage(message) {
+            document.getElementById('customAlertMessage').innerText = message;
+            openModal('customAlertModal');
+        }
+
+        // Handle custom date field visibility for Request Assistance Modal
+        document.addEventListener('DOMContentLoaded', () => {
+            const durationSelect = document.getElementById('duration-select');
+            const customDateField = document.getElementById('custom-date-field');
+
+            if (durationSelect && customDateField) {
+                durationSelect.addEventListener('change', (event) => {
+                    if (event.target.value === 'custom') {
+                        customDateField.classList.remove('hidden');
+                    } else {
+                        customDateField.classList.add('hidden');
+                    }
+                });
+            }
+        });
+
+        // Initialize to dashboard screen on load for demonstration
+        window.onload = function() {
+            showScreen('dashboard-screen');
+        };
+    </script>
+</body>
+</html>
